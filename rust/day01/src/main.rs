@@ -43,7 +43,9 @@ fn part2(lines: impl Iterator<Item = String>) -> String {
 }
 
 fn main() -> std::io::Result<()> {
-    let lines = std::io::stdin().lines().collect::<std::io::Result<Vec<String>>>()?;
+    let lines = std::io::stdin()
+        .lines()
+        .collect::<std::io::Result<Vec<String>>>()?;
     println!("Part 1: {}", part1(lines.clone().into_iter()));
     println!("Part 2: {}", part2(lines.into_iter()));
     Ok(())
