@@ -9,6 +9,7 @@ use std::collections::VecDeque;
 //
 // We will take advantage of these :3
 
+/// Calculate all the results of the `mul` instructions in a string.
 fn products(mut cs: VecDeque<char>) -> Vec<usize> {
     let mut to_return: Vec<usize> = Vec::new();
     // "mul(0,1)" is an instance of the shortest acceptable instructions. So, we need there to
@@ -22,6 +23,8 @@ fn products(mut cs: VecDeque<char>) -> Vec<usize> {
             let _ = cs.pop_front();
             let (mut lhs_chars, mut rhs_chars): (Vec<char>, Vec<char>) = (Vec::new(), Vec::new());
 
+            // If we find an inner "mul(" then we need to quite early and not try to parase the RHS.
+            // We'll use this skip boolean to skip over the RHS when necessary.
             let mut skip: bool = false;
 
             // Get the LHS digits.
