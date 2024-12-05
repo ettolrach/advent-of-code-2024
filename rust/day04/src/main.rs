@@ -89,38 +89,15 @@ impl Grid {
         a >= 0 && b >= 0 && a < self.width as isize && b < self.height as isize
     }
 
-    /// Get the neighbours of a coordiante.
-    fn neighbours(&self, index: usize) -> Vec<usize> {
-        // We can safely use an "as" conversion since the maze will be small enough.
-        let [x, y] = self.get_coord(index).map(|n| n as isize);
-        let neighbours: [[isize; 2]; 8] = [
-            [x + 1, y],
-            [x + 1, y + 1],
-            [x, y + 1],
-            [x - 1, y + 1],
-            [x - 1, y],
-            [x - 1, y - 1],
-            [x, y - 1],
-            [x + 1, y - 1],
-        ];
-        neighbours
-            .into_iter()
-            // Only get the in-bounds ones.
-            .filter(|&neighbour| self.in_bounds(neighbour))
-            // Convert them from coordinates to indices.
-            .map(|coord| self.get_index(coord.map(|i| i as usize)))
-            .collect()
-    }
-
     /// Adds a vector to an index, returning [`Option::None`] if the vector takes the index
     /// out-of-bounds.
     fn index_plus_vector(&self, index: usize, vector: [isize; 2]) -> Option<usize> {
         let [x, y] = self.get_coord(index);
         let new_coord = [x as isize + vector[0], y as isize + vector[1]];
-        if !self.in_bounds(new_coord) {
-            None
-        } else {
+        if self.in_bounds(new_coord) {
             Some(self.get_index(new_coord.map(|i| i as usize)))
+        } else {
+            None
         }
     }
 
@@ -167,25 +144,9 @@ impl Grid {
                     .filter(|b| *b)
                     .count();
                 if multiplicity > 0 {
-                    to_return.push((i, multiplicity))
+                    to_return.push((i, multiplicity));
                 }
             }
-            // The tuple represents the index to check and which letter in the word to check from.
-            // let mut to_check_stack: Vec<(usize, usize)> = vec![(i, 0)];
-            // while let Some(next) = to_check_stack.pop() {
-            //     if next.1 == word.len() {
-            //         // Push the found coordinate to the return vec and keep searching.
-            //         to_return.push(self.get_coord(i));
-            //         break;
-            //     }
-            //     if self.letters[next.0] == word[next.1] {
-            //         to_check_stack.extend(
-            //             self.neighbours(next.0)
-            //                 .iter()
-            //                 .map(|&n_index| (n_index, next.1 + 1)),
-            //         );
-            //     }
-            // }
         }
         to_return
             .into_iter()
@@ -204,10 +165,13 @@ impl Grid {
     /// * `vectors_with_chars` - the vectors will be added to the position, then the character at
     ///   this offset position will be compared with the character in the tuple.
     #[must_use]
-    fn check_relative_positions(&self, position: usize, vectors_with_chars: Vec<([isize; 2], char)>) -> bool {
+    fn check_relative_positions(
+        &self,
+        position: usize,
+        vectors_with_chars: Vec<([isize; 2], char)>,
+    ) -> bool {
         for (vector, c) in vectors_with_chars {
             if let Some(index) = self.index_plus_vector(position, vector) {
-                let c_to_compare = self.letters[index];
                 if self.letters[index] != c {
                     return false;
                 }
